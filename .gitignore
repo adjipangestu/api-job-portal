@@ -2,7 +2,9 @@
 client/node_modules
 client/dist
 
+env
 .env
+test.go
 
 client/src/env.json
 

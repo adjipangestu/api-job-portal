@@ -81,11 +81,14 @@ func (server *Server) Register(w http.ResponseWriter, r *http.Request) {
 	}
 
 	token := auth.GenerateToken(userCreated.Email)
-	user.UpdateToken(server.DB, token, uint32(userCreated.ID))
+	code_verify := auth.EncodeToString(6)
+	user.UpdateToken(server.DB, token, uint32(userCreated.ID), code_verify)
+
+	fmt.Println(token)
+	fmt.Println(code_verify)
 
 	url_verification := os.Getenv("URL_CLIENT") + "/auth/verifikasi/" + userCreated.TokenVerification
-
-	bodyEmail := "Verifikasi akun anda dengan klik link berikut ini <br><br> <a href='" + url_verification + "'>"+url_verification+"</a>"
+	bodyEmail := "Verifikasi akun anda dengan klik link berikut ini <br><br> <a href='" + url_verification + "'>"+url_verification+"</a><br> Dan masukan nomor verifikasi verikut ini: <br><b>" + code_verify + "</b>"
 
 	utils.SendMail(userCreated.Email, bodyEmail)
 

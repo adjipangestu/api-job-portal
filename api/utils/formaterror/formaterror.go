@@ -20,7 +20,19 @@ func FormatError(err string) error {
 	}
 
 	if strings.Contains(err, "gagal verifikasi") {
-		return errors.New("Gagal melakukan verifikasi, waktu sudah habis")
+		return errors.New("Gagal melakukan verifikasi, waktu sudah habis atau token anda salah")
+	}
+
+	if strings.Contains(err, "token verifikasi") {
+		return errors.New("Gagal melakukan verifikasi, token salah")
+	}
+
+	if strings.Contains(err, "code verifikasi") {
+		return errors.New("Gagal melakukan verifikasi, code verifikasi salah")
+	}
+
+	if strings.Contains(err, "sudah verifikasi") {
+		return errors.New("Akun anda sudah terferivikasi")
 	}
 
 	if strings.Contains(err, "title") {

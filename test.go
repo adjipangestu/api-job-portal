@@ -8,7 +8,7 @@ import (
 const CONFIG_SMTP_HOST = "smtp.gmail.com"
 const CONFIG_SMTP_PORT = 587
 const CONFIG_EMAIL = "adji.ngapak@gmail.com"
-const CONFIG_PASSWORD = "ilkom,UNILA.2015"
+const CONFIG_PASSWORD = "cqjpiwalnghbzzmw"
 
 func main() {
 	mailer := gomail.NewMessage()

@@ -2,6 +2,7 @@ package models
 
 import (
 	"errors"
+	"fmt"
 	"html"
 	"log"
 	"strings"
@@ -20,6 +21,7 @@ type User struct {
 	EmailVerification	bool	`gorm:"default:false" json:"email_verification"`
 	DateVerification time.Time `gorm:"default:null" json:"date_verification"`
 	TokenVerification string `gorm:"size:255;not null" json:"token_verification"`
+	CodeVerification string `gorm:"size:255;not null" json:"code_verification"`
 	CreatedAt time.Time `gorm:"default:CURRENT_TIMESTAMP" json:"created_at"`
 	UpdatedAt time.Time `gorm:"default:CURRENT_TIMESTAMP" json:"updated_at"`
 }
@@ -185,7 +187,7 @@ func (u *User) DeleteAUser(db *gorm.DB, uid uint32) (int64, error) {
 	return db.RowsAffected, nil
 }
 
-func (u *User) UpdateToken(db *gorm.DB, token string, uid uint32) (*User, error)  {
+func (u *User) UpdateToken(db *gorm.DB, token string, uid uint32, code string) (*User, error)  {
 	// To hash the password
 	err := u.BeforeSave()
 	if err != nil {
@@ -195,6 +197,7 @@ func (u *User) UpdateToken(db *gorm.DB, token string, uid uint32) (*User, error)
 		map[string]interface{}{
 			"date_verification": time.Now(),
 			"token_verification": token,
+			"code_verification": code,
 			"update_at": time.Now(),
 		},
 	)
@@ -210,23 +213,34 @@ func (u *User) UpdateToken(db *gorm.DB, token string, uid uint32) (*User, error)
 	return u, nil
 }
 
-func (u *User) UpdateVerifyUser(db *gorm.DB, token string) (*User, error)  {
+func (u *User) UpdateVerifyUser(db *gorm.DB, token string, code string) (*User, error)  {
 	// To hash the password
 	err := u.BeforeSave()
 	if err != nil {
 		log.Fatal(err)
 	}
 	user := User{}
-	db.Where("token_verification = ?", token).First(&user)
 
+	db.Where("token_verification = ?", token).First(&user)
+	code_verify := user.CodeVerification
 	data_now := time.Now()
 	date := user.DateVerification
 
 	hs := data_now.Sub(date).Hours()
 
-
-	if hs > 1 && user.EmailVerification == false {
+	if hs > 1 {
 		err := errors.New("gagal verifikasi")
+		fmt.Println(err)
+		return &User{}, err
+	}
+	if user.EmailVerification == true {
+		err := errors.New("sudah verifikasi")
+		fmt.Println(err)
+		return &User{}, err
+	}
+	if code_verify != code{
+		err := errors.New("code verifikasi")
+		fmt.Println(err)
 		return &User{}, err
 	}
 

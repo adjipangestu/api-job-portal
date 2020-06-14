@@ -1,7 +1,10 @@
 package controllers
 
 import (
+	"encoding/json"
+	"fmt"
 	"github.com/gorilla/mux"
+	"io/ioutil"
 	"net/http"
 	"rest/api/models"
 	"rest/api/responses"
@@ -12,6 +15,11 @@ func (server *Server) UpdateVerifikasiUser(w http.ResponseWriter, r *http.Reques
 	var err error
 	vars := mux.Vars(r)
 	token := vars["token"]
+	body, _ := ioutil.ReadAll(r.Body)
+	keyVal := make(map[string]string)
+	json.Unmarshal(body, &keyVal)
+
+	code := keyVal["code"]
 
 	if err != nil {
 		responses.ERROR(w, http.StatusBadRequest, err)
@@ -19,11 +27,28 @@ func (server *Server) UpdateVerifikasiUser(w http.ResponseWriter, r *http.Reques
 	}
 
 	user := models.User{}
-	updatedUser, err := user.UpdateVerifyUser(server.DB, token)
+	updatedUser, err := user.UpdateVerifyUser(server.DB, token, code)
 	if err != nil {
 		formattedError := formaterror.FormatError(err.Error())
 		responses.ERROR(w, http.StatusInternalServerError, formattedError)
 		return
 	}
-	responses.JSON(w, http.StatusOK, updatedUser)
+	fmt.Println(updatedUser)
+	msg := models.Msg{
+		Status:  200,
+		Message: "success",
+	}
+
+	responses.JSON(w, http.StatusOK, msg)
+}
+
+func (server *Server) ForgotPassword(w http.ResponseWriter, r *http.Request)  {
+	var err error
+	vars := mux.Vars(r)
+	token := vars["token"]
+	body, _ := ioutil.ReadAll(r.Body)
+	keyVal := make(map[string]string)
+	json.Unmarshal(body, &keyVal)
+
+	code := keyVal["code"]
 }
